@@ -2,7 +2,7 @@ library(ggraph)
 library(tidygraph)
 library(tidyverse)
 library(igraph)
-path = "/Users/vcerq/Dropbox/Research/graph_based_time_series_aug/assets/results/plot_data/example.csv"
+path = ""
 df <- read.csv(path)
 df$from <- paste0('Q', df$from+1)
 df$to <- paste0('Q', df$to+1)
