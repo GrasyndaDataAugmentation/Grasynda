@@ -1,6 +1,5 @@
 import sys
 
-sys.path.append(r'C:\Users\lhenr\Desktop\graph_based_time_series_aug')
 
 import numpy as np
 import pandas as pd
