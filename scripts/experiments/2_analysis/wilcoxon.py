@@ -2,7 +2,7 @@ import pandas as pd
 from scipy.stats import wilcoxon
 import sys
 
-# sys.path.append(r'C:\Users\lhenr\Desktop\graph_based_time_series_aug')
+
 
 from utils.analysis import to_latex_tab, read_results, THEME
 
