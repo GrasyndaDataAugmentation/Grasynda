@@ -1,5 +1,8 @@
 import re
 
+import sys
+
+sys.path.append(r'C:\Users\lhenr\Desktop\graph_based_time_series_aug')
 import pandas as pd
 import plotnine as p9
 
@@ -164,38 +167,55 @@ text_tab = annotated_res.to_latex(caption='CAPTION', label='tab:scores_by_ds')
 print(text_tab)
 
 
-# tex_tab = to_latex_tab(perf_by_all_ext, 4, rotate_cols=False)
-# print(tex_tab)
+tex_tab = to_latex_tab(perf_by_all_ext, 4, rotate_cols=False)
+print(tex_tab)
 
 #
-# # grouped bar plot
-# # ord = avg_rank.mean().sort_values().index.tolist()
-# # ord = avg_rank_ds.mean().sort_values().index.tolist()
-# ord = avg_perf_ds.mean().sort_values().index.tolist()
-# # ord = avg_perf.mean().sort_values().index.tolist()
-# # scores_df = avg_rank.reset_index().melt('model')
-# # scores_df = avg_rank_ds.reset_index().melt('model')
-# # scores_df = avg_rank_ds.reset_index().melt('ds')
-# scores_df = avg_perf_ds.reset_index().melt('ds')
-# # scores_df = avg_perf.reset_index().melt('model')
-# # scores_df.columns = ['Model', 'Method', 'Average Rank']
-# scores_df.columns = ['Dataset', 'Method', 'MASE']
-# scores_df['Method'] = pd.Categorical(scores_df['Method'], categories=ord)
+#grouped bar plot
+ord = avg_rank.mean().sort_values().index.tolist()
+ord = avg_rank_ds.mean().sort_values().index.tolist()
+ord = avg_perf_ds.mean().sort_values().index.tolist()
+ord = avg_perf.mean().sort_values().index.tolist()
+scores_df = avg_rank.reset_index().melt('model')
+#scores_df = avg_rank_ds.reset_index().melt('model')
+scores_df = avg_rank_ds.reset_index().melt('ds')
+scores_df = avg_perf_ds.reset_index().melt('ds')
+scores_df = avg_perf.reset_index().melt('model')
+scores_df.columns = ['Model', 'Method', 'Average Rank']
+scores_df.columns = ['Dataset', 'Method', 'MASE']
+scores_df['Method'] = pd.Categorical(scores_df['Method'], categories=ord)
 #
-# plot = \
-#     p9.ggplot(data=scores_df,
-#               mapping=p9.aes(
-#                   # x='Model',
-#                   x='Dataset',
-#                   y='MASE',
-#                   fill='Method')) + \
-#     p9.geom_bar(position='dodge',
-#                 stat='identity',
-#                 width=0.9) + \
-#     THEME + \
-#     p9.theme(axis_title_y=p9.element_text(size=12),
-#              axis_title_x=p9.element_blank(),
-#              axis_text=p9.element_text(size=12)) + \
-#     p9.scale_fill_manual(values=APPROACH_COLORS)
-#
-# # plot.save('assets/results/outputs/mase_by_model_op2.pdf', height=5, width=12)
+plot = \
+     p9.ggplot(data=scores_df,
+               mapping=p9.aes(
+                   x='Method',
+                 #  x='Dataset',
+                   y='MASE',
+                   fill='Method')) + \
+     p9.geom_bar(position='dodge',
+                 stat='identity',
+                 width=0.9) + \
+     THEME + \
+     p9.theme(axis_title_y=p9.element_text(size=12),
+              axis_title_x=p9.element_blank(),
+              axis_text=p9.element_text(size=12)) + \
+     p9.scale_fill_manual(values=APPROACH_COLORS)
+
+plot.save('assets/results/outputs/mase_by_model_op2.pdf', height=5, width=12)
+plot2 = \
+     p9.ggplot(data=scores_df,
+               mapping=p9.aes(
+                 #  x='Model',
+                   x='Dataset',
+                   y='MASE',
+                   fill='Method')) + \
+     p9.geom_bar(position='dodge',
+                 stat='identity',
+                 width=0.9) + \
+     THEME + \
+     p9.theme(axis_title_y=p9.element_text(size=12),
+              axis_title_x=p9.element_blank(),
+              axis_text=p9.element_text(size=12)) + \
+     p9.scale_fill_manual(values=APPROACH_COLORS)
+
+plot2.save('assets/results/outputs/mase_by_dataset.pdf', height=5, width=12)

@@ -8,7 +8,7 @@ from metaforecast.synth import (SeasonalMBB,
                                 DBA,
                                 TSMixup)
 
-ACCELERATOR = 'mps'
+ACCELERATOR = 'cpu'
 
 MODELS = {
     'NHITS': NHITS,
@@ -58,3 +58,4 @@ SYNTH_METHODS_ARGS = {
     'DBA': ['max_n_uids'],
     'TSMixup': ['max_n_uids', 'max_len', 'min_len']
 }
+    

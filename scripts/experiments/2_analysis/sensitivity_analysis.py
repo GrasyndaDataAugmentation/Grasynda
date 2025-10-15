@@ -1,5 +1,7 @@
 import re
+import sys
 
+sys.path.append(r'C:\Users\lhenr\Desktop\graph_based_time_series_aug')
 import pandas as pd
 import plotnine as p9
 
@@ -61,7 +63,7 @@ plot = \
                 width=0.9) + \
     THEME + \
     p9.theme(axis_title_y=p9.element_text(size=12),
-             axis_title_x=p9.element_blank(),
+             axis_title_x=p9.element_text(text="Ensemble parameter"),
              axis_text=p9.element_text(size=12)) + \
     p9.scale_fill_manual(values=APPROACH_COLORS)
 

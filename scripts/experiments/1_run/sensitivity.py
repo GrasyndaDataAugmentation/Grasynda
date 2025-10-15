@@ -1,5 +1,7 @@
 import os
+import sys
 
+sys.path.append(r'C:\Users\lhenr\Desktop\graph_based_time_series_aug')
 import numpy as np
 import pandas as pd
 
@@ -14,9 +16,9 @@ from utils.config import MODEL_CONFIG, MODELS
 from utils.load_data.base import LoadDataset
 from src.qgraph_ts import Grasynda
 
-N_QUANTILES_LIST = [3, 5, 7, 10, 15, 20, 25, 50, 75, 100]
-ENSEMBLE_SIZE = 50
-RESULTS_DIR = 'assets/results/csv/sensitivity-{ds}-{group},{model}.csv'
+N_QUANTILES_LIST = 25
+ENSEMBLE_SIZE = [3, 5, 7, 10, 15, 20, 25, 50, 75, 101]
+RESULTS_DIR = 'assets/results/sensitivity-{ds}-{group},{model}.csv'
 
 for data_name, group in DATA_GROUPS:
     # data_name, group = DATA_GROUPS[0]
@@ -61,18 +63,19 @@ for data_name, group in DATA_GROUPS:
 
         # AUGMENTED TRAIN SETS
         training_sets = {}
-        for n_quants in N_QUANTILES_LIST:
-            print(n_quants)
-            gsd = Grasynda(n_quantiles=n_quants,
+        for ensemble_p in ENSEMBLE_SIZE:
+            print(ensemble_p)
+            gsd = Grasynda(n_quantiles=25,
                            quantile_on='remainder',
                            period=freq_int,
-                           ensemble_transitions=False)
+                           ensemble_transitions=True,
+                           ensemble_size = ensemble_p)
 
             synth_df = gsd.transform(train)
 
             train_augmented = pd.concat([train, synth_df]).reset_index(drop=True)
 
-            training_sets[f'Grasynda({n_quants})'] = train_augmented
+            training_sets[f'Grasynda({ensemble_p})'] = train_augmented
 
         training_sets['Original'] = train.copy()
 
