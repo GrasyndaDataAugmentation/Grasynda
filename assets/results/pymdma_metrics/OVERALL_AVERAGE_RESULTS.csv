@@ -1,0 +1,9 @@
+,precision,recall,n_datasets
+TimeWarping,0.922,1.0,4
+Jittering,1.0,1.0,4
+SeasonalMBB,0.986,1.0,4
+TSMixup,0.954,1.0,4
+Scaling,0.949,1.0,4
+DBA,0.815,1.0,4
+GrasyndaE,0.999,1.0,4
+MagnitudeWarping,0.92,1.0,4

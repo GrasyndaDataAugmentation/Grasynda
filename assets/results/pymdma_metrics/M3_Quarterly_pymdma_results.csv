@@ -1,0 +1,9 @@
+,precision,recall
+DBA,0.922,1.0
+GrasyndaE,0.999,1.0
+Jittering,1.0,1.0
+MagnitudeWarping,0.838,1.0
+Scaling,0.899,1.0
+SeasonalMBB,0.991,1.0
+TimeWarping,0.978,1.0
+TSMixup,0.973,1.0

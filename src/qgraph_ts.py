@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from statsmodels.tsa.seasonal import STL
-
+from scipy.stats import gaussian_kde
 from metaforecast.synth.generators.base import SemiSyntheticGenerator
 
 
@@ -90,9 +90,10 @@ class Grasynda(SemiSyntheticGenerator):
 
         return synth_df
 
-    def _create_synthetic_ts(self, df: pd.DataFrame) -> Dict:
-        quantile_series = self._generate_quantile_series(df)
 
+    def _create_synthetic_ts(self, df: pd.DataFrame) -> Dict:
+
+        quantile_series = self._generate_quantile_series(df)
         generated_time_series = {}
 
         uids = df['unique_id'].unique().tolist()
@@ -101,22 +102,40 @@ class Grasynda(SemiSyntheticGenerator):
             uid_s = uid_df[self.quantile_on]
             uid_quantiles = uid_df['Quantile']
 
-            uid_q_vals = {q: uid_s[uid_quantiles == q].values for q in range(self.n_quantiles)}
+        # Build KDE 
+        uid_kdes = {}
+        for q in range(self.n_quantiles):
+            vals = uid_s[uid_quantiles == q].values
+            if len(vals) > 1:
+                uid_kdes[q] = gaussian_kde(vals)
+            elif len(vals) == 1:
+                #degenerate distribution
+                uid_kdes[q] = lambda n=1, v=vals[0]: np.array([v])
+            else:
+                uid_kdes[q] = None  # empty quantile
 
-            synth_ts = np.zeros(len(uid_s))
-            synth_ts[0] = uid_s.values[0]
+        synth_ts = np.zeros(len(uid_s))
+        synth_ts[0] = uid_s.values[0]
 
-            for i in range(1, len(uid_quantiles)):
-                current_quantile = quantile_series[uid][i]
+        for i in range(1, len(uid_quantiles)):
+            current_quantile = quantile_series[uid][i]
+            kde = uid_kdes.get(current_quantile, None)
 
-                if len(uid_q_vals[current_quantile]) > 0:
-                    synth_ts[i] = np.random.choice(uid_q_vals[current_quantile])
+            if kde is None:
+                # No samples - repeat last value
+                synth_ts[i] = synth_ts[i - 1]
+            else:
+                # KDE sampling
+                if callable(kde):
+                    sampled_val = kde()[0]
                 else:
-                    synth_ts[i] = np.nan
+                    sampled_val = kde.resample(1)[0][0]
+                synth_ts[i] = sampled_val
 
-            generated_time_series[uid] = pd.Series(synth_ts, index=uid_df.index)
+        generated_time_series[uid] = pd.Series(synth_ts, index=uid_df.index)
 
         return generated_time_series
+
 
     def _generate_quantile_series(self, df: pd.DataFrame):
         uids = df['unique_id'].unique().tolist()
