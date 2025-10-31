@@ -23,10 +23,7 @@ def df_to_array(df):
         ts_values = group['y'].values
         time_series_list.append(ts_values)
     
-    # Calculate after stats
-    all_values = np.concatenate(time_series_list)
-    print(f"After  - Mean: {all_values.mean():.2f}, Std: {all_values.std():.2f}")
-    
+    print(time_series_list.len())
     return time_series_list
 
 def extract_features(time_series_data, fs=12):
