@@ -10,24 +10,36 @@ PYMDMA_DIR = "assets/results/pymdma_metrics"
 os.makedirs(PYMDMA_DIR, exist_ok=True)
 
 DATASETS_CONFIG = [
-    {"name": "M3", "groups": ["Monthly"]},
+    {"name": "Tourism", "groups": ["Monthly"]},
 ]
 
 def df_to_array(df):
-    pivot = df.pivot(index="ds", columns="unique_id", values="y")
-    pivot = pivot.ffill().bfill()
-    return pivot.T.values
+    time_series_list = []
+    
+    print(f"Before - Mean: {df['y'].mean():.2f}, Std: {df['y'].std():.2f}")
+    
+    for unique_id, group in df.groupby('unique_id'):
+        group = group.sort_values('ds')
+        ts_values = group['y'].values
+        time_series_list.append(ts_values)
+    
+    # Calculate after stats
+    all_values = np.concatenate(time_series_list)
+    print(f"After  - Mean: {all_values.mean():.2f}, Std: {all_values.std():.2f}")
+    
+    return time_series_list
 
 def extract_features(time_series_data, fs=12):
-    cfg = tsfel.get_features_by_domain()
+    cfg = tsfel.get_features_by_domain('temporal')
     features_list = []
-    
-    for i in range(time_series_data.shape[0]):
-        single_ts = time_series_data[i, :]
+   # print(time_series_data)
+ 
+    for i, single_ts in enumerate(time_series_data):
+        
         features = tsfel.time_series_features_extractor(cfg, single_ts, fs=fs, verbose=0)
         features_list.append(features.values.flatten())
     
-    return np.array(features_list)
+    return np.array(features_list)  
 
 def extract_main_value(metric_result):
     if isinstance(metric_result.value, tuple):
@@ -43,15 +55,18 @@ def evaluate_dataset(dataset_name, group):
     real_df = pd.read_csv(real_path)
     real_data = df_to_array(real_df)
     real_features = extract_features(real_data, fs=12)
+   # print(f"Real features shape: {real_features.shape}")
     
     results = {}
     
     for fname in synthetic_files:
         synth_name = fname.replace(f"{dataset_name}_{group}_", "").replace(".csv", "")
-        
+        print(synth_name)
         synth_df = pd.read_csv(os.path.join(TRAIN_DIR, fname))
         synth_data = df_to_array(synth_df)
+      #  print(f"\nSynthetic data shape ({synth_name}): {synth_data.shape}")
         synth_features = extract_features(synth_data, fs=12)
+       # print(f"Synthetic features shape ({synth_name}): {synth_features.shape}")
         
         precision = ImprovedPrecision()
         recall = ImprovedRecall()
@@ -60,6 +75,8 @@ def evaluate_dataset(dataset_name, group):
             'precision': round(extract_main_value(precision.compute(real_features, synth_features)), 3),
             'recall': round(extract_main_value(recall.compute(real_features, synth_features)), 3)
         }
+        
+        print(f"✅ FINISHED {synth_name}: Precision={results[synth_name]['precision']}, Recall={results[synth_name]['recall']}")
     
     return results
 
